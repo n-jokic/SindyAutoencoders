@@ -161,17 +161,21 @@ def build_network_layers(input, input_dim, output_dim, widths, activation, name)
     weights = []
     biases = []
     last_width=input_dim
+
     for i,n_units in enumerate(widths):
         W = tf.compat.v1.get_variable(name+'_W'+str(i), shape=[last_width,n_units],
             initializer=tf.compat.v1.glorot_uniform_initializer())
         b = tf.compat.v1.get_variable(name+'_b'+str(i), shape=[n_units],
             initializer=tf.compat.v1.constant_initializer(0.0))
         input = tf.linalg.matmul(input, W) + b
+
         if activation is not None:
             input = activation(input)
+            
         last_width = n_units
         weights.append(W)
         biases.append(b)
+
     W = tf.compat.v1.get_variable(name+'_W'+str(len(widths)), shape=[last_width,output_dim],
         initializer=tf.compat.v1.glorot_uniform_initializer())
     b = tf.compat.v1.get_variable(name+'_b'+str(len(widths)), shape=[output_dim],
