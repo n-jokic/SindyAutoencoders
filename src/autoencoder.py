@@ -82,27 +82,17 @@ def define_loss(network, params):
     """
     x = network['x']
     x_decode = network['x_decode']
-    if params['model_order'] == 1:
-        dz = network['dz']
-        dz_predict = network['dz_predict']
-        dx = network['dx']
-        dx_decode = network['dx_decode']
-    else:
-        ddz = network['ddz']
-        ddz_predict = network['ddz_predict']
-        ddx = network['ddx']
-        ddx_decode = network['ddx_decode']
+    dz = network['dz']
+    dz_predict = network['dz_predict']
+    dx = network['dx']
+    dx_decode = network['dx_decode']
     sindy_coefficients = params['coefficient_mask']*network['sindy_coefficients']
 
     losses = {}
-    losses['decoder'] = tf.reduce_mean((x - x_decode)**2)
-    if params['model_order'] == 1:
-        losses['sindy_z'] = tf.reduce_mean((dz - dz_predict)**2)
-        losses['sindy_x'] = tf.reduce_mean((dx - dx_decode)**2)
-    else:
-        losses['sindy_z'] = tf.reduce_mean((ddz - ddz_predict)**2)
-        losses['sindy_x'] = tf.reduce_mean((ddx - ddx_decode)**2)
-    losses['sindy_regularization'] = tf.reduce_mean(tf.abs(sindy_coefficients))
+    losses['decoder'] = tf.math.reduce_mean((x - x_decode)**2)
+    losses['sindy_z'] = tf.math.reduce_mean((dz - dz_predict)**2)
+    losses['sindy_x'] = tf.math.reduce_mean((dx - dx_decode)**2)
+    losses['sindy_regularization'] = tf.math.reduce_mean(tf.abs(sindy_coefficients))
     loss = params['loss_weight_decoder'] * losses['decoder'] \
            + params['loss_weight_sindy_z'] * losses['sindy_z'] \
            + params['loss_weight_sindy_x'] * losses['sindy_x'] \
