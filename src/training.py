@@ -8,25 +8,23 @@ def train_network(training_data, val_data, params):
     # SET UP NETWORK
     autoencoder_network = full_network(params)
     loss, losses, loss_refinement = define_loss(autoencoder_network, params)
-    learning_rate = tf.placeholder(tf.float32, name='learning_rate')
-    train_op = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
-    train_op_refinement = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss_refinement)
-    saver = tf.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES))
+    learning_rate = tf.compat.v1.placeholder(tf.float32, name='learning_rate')
+    train_op = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
+    train_op_refinement = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss_refinement)
+    saver = tf.compat.v1.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES))
 
     validation_dict = create_feed_dictionary(val_data, params, idxs=None)
 
     x_norm = np.mean(val_data['x']**2)
-    if params['model_order'] == 1:
-        sindy_predict_norm_x = np.mean(val_data['dx']**2)
-    else:
-        sindy_predict_norm_x = np.mean(val_data['ddx']**2)
-
+    
+    sindy_predict_norm_x = np.mean(val_data['dx']**2)
+    
     validation_losses = []
     sindy_model_terms = [np.sum(params['coefficient_mask'])]
 
     print('TRAINING')
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
+    with tf.compat.v1.Session() as sess:
+        sess.run(tf.compat.v1.global_variables_initializer())
         for i in range(params['max_epochs']):
             for j in range(params['epoch_size']//params['batch_size']):
                 batch_idxs = np.arange(j*params['batch_size'], (j+1)*params['batch_size'])
@@ -57,10 +55,8 @@ def train_network(training_data, val_data, params):
         final_losses = sess.run((losses['decoder'], losses['sindy_x'], losses['sindy_z'],
                                  losses['sindy_regularization']),
                                 feed_dict=validation_dict)
-        if params['model_order'] == 1:
-            sindy_predict_norm_z = np.mean(sess.run(autoencoder_network['dz'], feed_dict=validation_dict)**2)
-        else:
-            sindy_predict_norm_z = np.mean(sess.run(autoencoder_network['ddz'], feed_dict=validation_dict)**2)
+        
+        sindy_predict_norm_z = np.mean(sess.run(autoencoder_network['dz'], feed_dict=validation_dict)**2)
         sindy_coefficients = sess.run(autoencoder_network['sindy_coefficients'], feed_dict={})
 
         results_dict = {}
