@@ -237,26 +237,28 @@ def z_derivative(input, dx, weights, biases, activation='elu'):
     dz = dx
     if activation == 'elu':
         for i in range(len(weights)-1):
-            input = tf.matmul(input, weights[i]) + biases[i]
-            dz = tf.multiply(tf.minimum(tf.exp(input),1.0),
-                                  tf.matmul(dz, weights[i]))
+            input = tf.linalg.matmul(input, weights[i]) + biases[i]
+            dz = tf.math.multiply(tf.math.minimum(tf.math.exp(input),1.0),
+                                  tf.linalg.matmul(dz, weights[i]))
             input = tf.nn.elu(input)
-        dz = tf.matmul(dz, weights[-1])
+        dz = tf.linalg.matmul(dz, weights[-1])
     elif activation == 'relu':
         for i in range(len(weights)-1):
-            input = tf.matmul(input, weights[i]) + biases[i]
-            dz = tf.multiply(tf.to_float(input>0), tf.matmul(dz, weights[i]))
+            input = tf.linalg.matmul(input, weights[i]) + biases[i]
+            dz = tf.math.multiply(tf.compat.v1.to_float(input>0), 
+                                  tf.linalg.matmul(dz, weights[i]))
             input = tf.nn.relu(input)
-        dz = tf.matmul(dz, weights[-1])
+        dz = tf.linalg.matmul(dz, weights[-1])
     elif activation == 'sigmoid':
         for i in range(len(weights)-1):
-            input = tf.matmul(input, weights[i]) + biases[i]
+            input = tf.linalg.matmul(input, weights[i]) + biases[i]
             input = tf.sigmoid(input)
-            dz = tf.multiply(tf.multiply(input, 1-input), tf.matmul(dz, weights[i]))
-        dz = tf.matmul(dz, weights[-1])
+            dz = tf.math.multiply(tf.math.multiply(input, 1-input), 
+                                  tf.linalg.matmul(dz, weights[i]))
+        dz = tf.linalg.matmul(dz, weights[-1])
     else:
         for i in range(len(weights)-1):
-            dz = tf.matmul(dz, weights[i])
-        dz = tf.matmul(dz, weights[-1])
+            dz = tf.linalg.matmul(dz, weights[i])
+        dz = tf.linalg.matmul(dz, weights[-1])
     return dz
 
