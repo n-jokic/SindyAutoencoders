@@ -1,4 +1,5 @@
 import tensorflow as tf
+tf.compat.v1.disable_eager_execution()
 
 
 def full_network(params):
@@ -16,10 +17,7 @@ def full_network(params):
     latent_dim = params['latent_dim']
     activation = params['activation']
     poly_order = params['poly_order']
-    if 'include_sine' in params.keys():
-        include_sine = params['include_sine']
-    else:
-        include_sine = False
+    include_sine=params.get('include_sine',False)
     library_dim = params['library_dim']
 
     network = {}
