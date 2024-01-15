@@ -22,8 +22,8 @@ def full_network(params):
 
     network = {}
 
-    x = tf.placeholder(tf.float32, shape=[None, input_dim], name='x')
-    dx = tf.placeholder(tf.float32, shape=[None, input_dim], name='dx')
+    x = tf.compat.v1.placeholder(tf.float32, shape=[None, input_dim], name='x')
+    dx = tf.compat.v1.placeholder(tf.float32, shape=[None, input_dim], name='dx')
 
     if activation == 'linear':
         z, x_decode, encoder_weights, encoder_biases, decoder_weights, decoder_biases = linear_autoencoder(x, input_dim, latent_dim)
@@ -35,20 +35,20 @@ def full_network(params):
     
 
     if params['coefficient_initialization'] == 'xavier':
-        sindy_coefficients = tf.get_variable('sindy_coefficients', shape=[library_dim,latent_dim], initializer=tf.contrib.layers.xavier_initializer())
+        sindy_coefficients = tf.compat.v1.get_variable('sindy_coefficients', shape=[library_dim,latent_dim], initializer=tf.contrib.layers.xavier_initializer())
     elif params['coefficient_initialization'] == 'specified':
-        sindy_coefficients = tf.get_variable('sindy_coefficients', initializer=params['init_coefficients'])
+        sindy_coefficients = tf.compat.v1.get_variable('sindy_coefficients', initializer=params['init_coefficients'])
     elif params['coefficient_initialization'] == 'constant':
-        sindy_coefficients = tf.get_variable('sindy_coefficients', shape=[library_dim,latent_dim], initializer=tf.constant_initializer(1.0))
+        sindy_coefficients = tf.compat.v1.get_variable('sindy_coefficients', shape=[library_dim,latent_dim], initializer=tf.constant_initializer(1.0))
     elif params['coefficient_initialization'] == 'normal':
-        sindy_coefficients = tf.get_variable('sindy_coefficients', shape=[library_dim,latent_dim], initializer=tf.initializers.random_normal())
+        sindy_coefficients = tf.compat.v1.get_variable('sindy_coefficients', shape=[library_dim,latent_dim], initializer=tf.initializers.random_normal())
     
     if params['sequential_thresholding']:
-        coefficient_mask = tf.placeholder(tf.float32, shape=[library_dim,latent_dim], name='coefficient_mask')
-        sindy_predict = tf.matmul(Theta, coefficient_mask*sindy_coefficients)
+        coefficient_mask = tf.compat.v1.placeholder(tf.float32, shape=[library_dim,latent_dim], name='coefficient_mask')
+        sindy_predict = tf.linalg.matmul(Theta, coefficient_mask*sindy_coefficients)
         network['coefficient_mask'] = coefficient_mask
     else:
-        sindy_predict = tf.matmul(Theta, sindy_coefficients)
+        sindy_predict = tf.linalg.matmul(Theta, sindy_coefficients)
 
     
     dx_decode = z_derivative(z, sindy_predict, decoder_weights, decoder_biases, activation=activation)
