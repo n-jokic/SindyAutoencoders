@@ -11,7 +11,7 @@ def train_network(training_data, val_data, params):
     learning_rate = tf.compat.v1.placeholder(tf.float32, name='learning_rate')
     train_op = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
     train_op_refinement = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss_refinement)
-    saver = tf.compat.v1.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES))
+    saver = tf.compat.v1.train.Saver(var_list=tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES))
 
     validation_dict = create_feed_dictionary(val_data, params, idxs=None)
 
