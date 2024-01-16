@@ -5,26 +5,54 @@ import itertools as itertools
 
 
 def sindy_library(X, poly_order, include_sine=False):
-    m, n = X.shape
+    m,n = X.shape
     l = library_size(n, poly_order, include_sine, True)
-    library = np.ones((m, l))
+    library = np.ones((m,l))
     index = 1
 
-    library[:, index:index+n] = X  # Linear terms
-    index += n
+    for i in range(n):
+        library[:,index] = X[:,i]
+        index += 1
 
-    for order in range(2, poly_order + 1):
-        for indices in itertools.product(range(n), repeat=order):
-            library[:, index] = np.prod(X[:, indices], axis=1)
-            index += 1
+    if poly_order > 1:
+        for i in range(n):
+            for j in range(i,n):
+                library[:,index] = X[:,i]*X[:,j]
+                index += 1
+
+    if poly_order > 2:
+        for i in range(n):
+            for j in range(i,n):
+                for k in range(j,n):
+                    library[:,index] = X[:,i]*X[:,j]*X[:,k]
+                    index += 1
+
+    if poly_order > 3:
+        for i in range(n):
+            for j in range(i,n):
+                for k in range(j,n):
+                    for q in range(k,n):
+                        library[:,index] = X[:,i]*X[:,j]*X[:,k]*X[:,q]
+                        index += 1
+                    
+    if poly_order > 4:
+        for i in range(n):
+            for j in range(i,n):
+                for k in range(j,n):
+                    for q in range(k,n):
+                        for r in range(q,n):
+                            library[:,index] = X[:,i]*X[:,j]*X[:,k]*X[:,q]*X[:,r]
+                            index += 1
 
     if include_sine:
-        library[:, index:] = np.sin(X)
-    
+        for i in range(n):
+            library[:,index] = np.sin(X[:,i])
+            index += 1
+
     return library
 
 def library_size(n, poly_order, use_sine=False, include_constant=True):
-    l = 1 if include_constant else 0
+    l = 0 if include_constant else -1
     
     for k in range(poly_order+1):
         l += int(binom(n+k-1,k))
