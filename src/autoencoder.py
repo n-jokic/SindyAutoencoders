@@ -35,8 +35,9 @@ def full_network(params):
     Theta = sindy_library_tf(z, latent_dim, poly_order, include_sine)
     
 
-    if params['coefficient_initialization'] == 'xavier':
-        sindy_coefficients = tf.compat.v1.get_variable('sindy_coefficients', shape=[library_dim,latent_dim], initializer=tf.contrib.layers.xavier_initializer())
+    if params['coefficient_initialization'] == 'glorot_normal':
+        sindy_coefficients = tf.compat.v1.get_variable('sindy_coefficients', shape=[library_dim,latent_dim], 
+                                                       initializer=tf.keras.initializers.GlorotNormal())
     elif params['coefficient_initialization'] == 'specified':
         sindy_coefficients = tf.compat.v1.get_variable('sindy_coefficients', initializer=params['init_coefficients'])
     elif params['coefficient_initialization'] == 'constant':
