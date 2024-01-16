@@ -130,8 +130,6 @@ def create_feed_dictionary(data, params, idxs=None):
     feed_dict = {}
     feed_dict['x:0'] = data['x'][idxs]
     feed_dict['dx:0'] = data['dx'][idxs]
-    if params['model_order'] == 2:
-        feed_dict['ddx:0'] = data['ddx'][idxs]
     if params['sequential_thresholding']:
         feed_dict['coefficient_mask:0'] = params['coefficient_mask']
     feed_dict['learning_rate:0'] = params['learning_rate']
