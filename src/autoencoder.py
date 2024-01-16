@@ -202,16 +202,40 @@ def sindy_library_tf(z, latent_dim, poly_order, include_sine=False):
         number of library functions. The number of library functions is determined by the number
         of state variables of the input, the polynomial order, and whether or not sines are included.
     """
-    library = [tf.ones(tf.shape(z)[0])]
-    library = [tf.ones(tf.shape(z)[0])] + [z[:, i] for i in range(latent_dim)]
+    library = [tf.ones(tf.shape(input=z)[0])]
 
-    for order in range(2, poly_order + 1):
-        library += [tf.reduce_prod(tf.gather(z, indices, axis=1), axis=1) 
-                    for indices in itertools.product(range(latent_dim), repeat=order)]
+    for i in range(latent_dim):
+        library.append(z[:,i])
+
+    if poly_order > 1:
+        for i in range(latent_dim):
+            for j in range(i,latent_dim):
+                library.append(z[:,i]*z[:,j])
+
+    if poly_order > 2:
+        for i in range(latent_dim):
+            for j in range(i,latent_dim):
+                for k in range(j,latent_dim):
+                    library.append(z[:,i]*z[:,j]*z[:,k])
+
+    if poly_order > 3:
+        for i in range(latent_dim):
+            for j in range(i,latent_dim):
+                for k in range(j,latent_dim):
+                    for p in range(k,latent_dim):
+                        library.append(z[:,i]*z[:,j]*z[:,k]*z[:,p])
+
+    if poly_order > 4:
+        for i in range(latent_dim):
+            for j in range(i,latent_dim):
+                for k in range(j,latent_dim):
+                    for p in range(k,latent_dim):
+                        for q in range(p,latent_dim):
+                            library.append(z[:,i]*z[:,j]*z[:,k]*z[:,p]*z[:,q])
 
     if include_sine:
-        
-        library += [tf.sin(z[:,i]) for i in range(latent_dim)]
+        for i in range(latent_dim):
+            library.append(tf.sin(z[:,i]))
 
     return tf.stack(library, axis=1)
 
