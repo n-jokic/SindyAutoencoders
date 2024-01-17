@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.special import binom
-from scipy.integrate import odeint
+from scipy.integrate import solve_ivp
 import itertools as itertools
 
 
@@ -80,7 +80,7 @@ def sindy_fit(RHS, LHS, coefficient_threshold):
 def sindy_simulate(x0, t, Xi, poly_order, include_sine):
     m = t.size
     n = x0.size
-    f = lambda x,t : np.dot(sindy_library(np.array(x).reshape((1,n)), poly_order, include_sine), Xi).reshape((n,))
+    f = lambda t, x : np.dot(sindy_library(np.array(x).reshape((1,n)), poly_order, include_sine), Xi).reshape((n,))
 
-    x = odeint(f, x0, t)
+    x = solve_ivp(f, t_span=(t[0], t[-1]), y0=x0, t_eval=t, method='DOP853').y.T
     return x
